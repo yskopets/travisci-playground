@@ -1,0 +1,14 @@
+language: cpp
+
+os:
+- linux
+
+services:
+- docker
+
+jobs:
+  include:
+  - stage: ci
+    script: ci/run_envoy_docker.sh build
+  - stage: ci
+    script: ci/run_envoy_docker.sh test
