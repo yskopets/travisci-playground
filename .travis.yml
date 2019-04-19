@@ -9,6 +9,11 @@ services:
 jobs:
   include:
   - stage: ci
-    script: ci/run_envoy_docker.sh build
+    script: |
+      docker run --rm -t -i -e \
+       -u "${USER}":"${USER_GROUP}" -v /tmp:/build \
+       -v `pwd`:/source -e NUM_CPUS --cap-add SYS_PTRACE --cap-add NET_RAW --cap-add NET_ADMIN envoyproxy/envoy-build:698009170e362f9ca0594f2b1927fbbee199bf98 \
+       /bin/bash -lc "groupadd --gid $(id -g) -f envoygroup && useradd -o --uid $(id -u) --gid $(id -g) --no-create-home \
+       --home-dir /source envoybuild && usermod -a -G pcap envoybuild && su envoybuild -c \"cd source && bazel build //main:hello-world\""
   - stage: ci
     script: ci/run_envoy_docker.sh test
